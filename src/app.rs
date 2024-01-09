@@ -1,35 +1,19 @@
-// ANCHOR: action
-pub enum Action {
-    Tick,
-    Increment,
-    Decrement,
-    Quit,
-    None,
-}
-// ANCHOR_END: action
-
-// ANCHOR: application
-/// Application.
 #[derive(Debug, Default)]
 pub struct App {
-    /// should the application exit?
     pub should_quit: bool,
-    /// counter
-    pub counter: u8,
+    pub counter: u64,
 }
-// ANCHOR_END: application
 
-// ANCHOR: application_impl
 impl App {
-    /// Constructs a new instance of [`App`].
     pub fn new() -> Self {
         Self::default()
     }
 
     /// Handles the tick event of the terminal.
-    pub fn tick(&self) {}
+    pub fn tick(&mut self) {
+        self.counter += 1;
+    }
 
-    /// Set should_quit to true to quit the application.
     pub fn quit(&mut self) {
         self.should_quit = true;
     }
@@ -46,24 +30,8 @@ impl App {
         }
     }
 }
-// ANCHOR_END: application_impl
 
-// ANCHOR: application_test
 #[cfg(test)]
 mod tests {
-    use super::*;
-    #[test]
-    fn test_app_increment_counter() {
-        let mut app = App::default();
-        app.increment_counter();
-        assert_eq!(app.counter, 1);
-    }
-
-    #[test]
-    fn test_app_decrement_counter() {
-        let mut app = App::default();
-        app.decrement_counter();
-        assert_eq!(app.counter, 0);
-    }
+    // use super::*;
 }
-// ANCHOR_END: application_test

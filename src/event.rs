@@ -1,5 +1,3 @@
-// ANCHOR: eventall
-// ANCHOR: event_import
 use std::{
     sync::mpsc,
     thread,
@@ -8,9 +6,6 @@ use std::{
 
 use color_eyre::Result;
 use crossterm::event::{self, Event as CrosstermEvent, KeyEvent, MouseEvent};
-// ANCHOR_END: event_import
-
-// ANCHOR: event
 
 /// Terminal events.
 #[derive(Clone, Copy, Debug)]
@@ -24,9 +19,7 @@ pub enum Event {
     /// Terminal resize.
     Resize(u16, u16),
 }
-// ANCHOR_END: event
 
-// ANCHOR: eventhandler
 /// Terminal event handler.
 #[derive(Debug)]
 pub struct EventHandler {
@@ -39,9 +32,7 @@ pub struct EventHandler {
     #[allow(dead_code)]
     handler: thread::JoinHandle<()>,
 }
-// ANCHOR_END: eventhandler
 
-// ANCHOR: eventhandler_impl
 impl EventHandler {
     /// Constructs a new instance of [`EventHandler`].
     pub fn new(tick_rate: u64) -> Self {
@@ -56,7 +47,6 @@ impl EventHandler {
                         .checked_sub(last_tick.elapsed())
                         .unwrap_or(tick_rate);
 
-                    // ANCHOR: eventhandler_poll
                     if event::poll(timeout).expect("unable to poll for event") {
                         match event::read().expect("unable to read event") {
                             CrosstermEvent::Key(e) => {
@@ -72,7 +62,6 @@ impl EventHandler {
                         }
                         .expect("failed to send terminal event")
                     }
-                    // ANCHOR_END: eventhandler_poll
 
                     if last_tick.elapsed() >= tick_rate {
                         sender.send(Event::Tick).expect("failed to send tick event");
@@ -96,5 +85,3 @@ impl EventHandler {
         Ok(self.receiver.recv()?)
     }
 }
-// ANCHOR_END: eventhandler_impl
-// ANCHOR_END: eventall
