@@ -20,11 +20,12 @@ use tui::Tui;
 use update::update;
 
 fn main() -> Result<()> {
-    let mut app = App::new();
+    let tick_rate_ms = 1;
+    let mut app = App::new(tick_rate_ms);
 
     let backend = CrosstermBackend::new(std::io::stderr());
     let terminal = Terminal::new(backend)?;
-    let events = EventHandler::new(250);
+    let events = EventHandler::new(tick_rate_ms);
     let mut tui = Tui::new(terminal, events);
     tui.enter()?;
 
