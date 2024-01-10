@@ -70,6 +70,30 @@ impl Weekday {
     }
 }
 
+#[derive(Debug, Default, Clone)]
+pub enum DateTimeField {
+    #[default]
+    Second,
+    Hour,
+    Minute,
+    Month,
+    Date,
+    DayOfWeek,
+}
+
+impl DateTimeField {
+    pub fn next(&mut self) {
+        *self = match *self {
+            DateTimeField::Second => DateTimeField::Minute,
+            DateTimeField::Minute => DateTimeField::Hour,
+            DateTimeField::Hour => DateTimeField::Date,
+            DateTimeField::Date => DateTimeField::Month,
+            DateTimeField::Month => DateTimeField::DayOfWeek,
+            DateTimeField::DayOfWeek => DateTimeField::Second,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DateTime {
     /// 0-23 hour
@@ -211,5 +235,9 @@ impl DateTime {
         } else {
             self.month = 12;
         }
+    }
+
+    pub fn increment_day_of_week(&mut self) {
+        self.day_of_week.increment();
     }
 }

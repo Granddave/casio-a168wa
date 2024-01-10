@@ -1,8 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-use self::datetime::{DateTime, HourFormat};
+use self::{
+    datetime::{DateTime, HourFormat},
+    time_setting::TimeSetter,
+};
 
 pub mod datetime;
+pub mod time_setting;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub enum Mode {
@@ -27,8 +31,13 @@ impl Mode {
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Clock {
     pub datetime: DateTime,
+    #[serde(skip)]
+    pub time_setting: TimeSetter,
+    #[serde(skip)]
     pub mode: Mode,
+    #[serde(skip)]
     pub illuminator: bool,
+    #[serde(skip)]
     illuminator_timeout: u64,
     pub hour_format: HourFormat,
 }

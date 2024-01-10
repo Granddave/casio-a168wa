@@ -4,9 +4,10 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Paragraph},
 };
 
+use crate::app::clock::datetime::DateTimeField;
 pub use crate::app::{clock::datetime::HourFormat, clock::Mode, App};
 
-fn time(app: &App) -> Paragraph {
+fn hour_format(app: &App) -> (String, u8) {
     let hour = app.clock.datetime.hour;
     let (hour_format, hour) = match app.clock.hour_format {
         HourFormat::Format12 => {
@@ -18,6 +19,12 @@ fn time(app: &App) -> Paragraph {
         }
         HourFormat::Format24 => ("24h", hour),
     };
+
+    (hour_format.to_owned(), hour)
+}
+
+fn time(app: &App) -> Paragraph {
+    let (hour_format, hour) = hour_format(app);
     Paragraph::new(format!(
         "{} {} {}\n{:02}:{:02} {:02}",
         hour_format,
@@ -29,6 +36,27 @@ fn time(app: &App) -> Paragraph {
     ))
 }
 
+fn time_setting(app: &App) -> Paragraph {
+    match app.clock.time_setting.selected_field {
+        DateTimeField::Second | DateTimeField::Hour | DateTimeField::Minute => {
+            Paragraph::new(format!(
+                "  {} {}\n{:02}:{:02} {:02}",
+                app.clock.datetime.day_of_week,
+                app.clock.datetime.date,
+                app.clock.datetime.hour,
+                app.clock.datetime.minute,
+                app.clock.datetime.second,
+            ))
+        }
+        DateTimeField::Month | DateTimeField::Date | DateTimeField::DayOfWeek => {
+            Paragraph::new(format!(
+                "  {} {}\n {}",
+                app.clock.datetime.day_of_week, app.clock.datetime.date, app.clock.datetime.month,
+            ))
+        }
+    }
+}
+
 pub fn render(app: &mut App, f: &mut Frame) {
     let background = if app.clock.illuminator {
         Color::Green
@@ -38,6 +66,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
 
     let widget = match app.clock.mode {
         Mode::Timekeeping => time(app),
+        Mode::TimeSetting => time_setting(app),
         _ => Paragraph::new(format!("{:?} not implemented", app.clock.mode)),
     };
 

@@ -49,6 +49,10 @@ impl App {
 
     pub fn press_button_a(&mut self) {
         self.clock.illuminate();
+        match self.clock.mode {
+            Mode::TimeSetting => self.clock.time_setting.next_field(),
+            _ => {}
+        }
     }
 
     pub fn press_button_b(&mut self) {
@@ -60,7 +64,7 @@ impl App {
             Mode::Timekeeping => self.clock.hour_format.next(),
             Mode::Alarm => {}
             Mode::Stopwatch => {}
-            Mode::TimeSetting => {}
+            Mode::TimeSetting => self.clock.time_setting.activate(&mut self.clock.datetime),
         }
     }
 }
