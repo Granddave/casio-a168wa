@@ -1,6 +1,8 @@
 use std::fmt;
 
-#[derive(Debug, Default, PartialEq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 pub enum Weekday {
     #[default]
     Monday,
@@ -52,7 +54,7 @@ impl Weekday {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct DateTime {
     /// 0-23 hour
     pub hour: u8,

@@ -10,12 +10,11 @@ pub fn render(app: &mut App, f: &mut Frame) {
     f.render_widget(
         Paragraph::new(format!(
             "{} {}\n{:02}:{:02} {:02}",
-            app.datetime.day_of_week,
-            // app.datetime.month,
-            app.datetime.date,
-            app.datetime.hour,
-            app.datetime.minute,
-            app.datetime.second,
+            app.clock.datetime.day_of_week,
+            app.clock.datetime.date,
+            app.clock.datetime.hour,
+            app.clock.datetime.minute,
+            app.clock.datetime.second,
         ))
         .block(
             Block::default()
