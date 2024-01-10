@@ -1,23 +1,45 @@
 use serde::{Deserialize, Serialize};
 
-use self::clock::DateTime;
+use self::clock::{DateTime, HourFormat};
 
 pub mod clock;
 
 /// Module that containg functions that save and restore clock state from disk
 mod persistence;
 
-#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub enum Mode {
+    #[default]
+    Timekeeping,
+    Alarm,
+    Stopwatch,
+    TimeSetting,
+}
+
+impl Mode {
+    pub fn next(&mut self) {
+        *self = match *self {
+            Mode::Timekeeping => Mode::Alarm,
+            Mode::Alarm => Mode::Stopwatch,
+            Mode::Stopwatch => Mode::TimeSetting,
+            Mode::TimeSetting => Mode::Timekeeping,
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Clock {
     pub datetime: DateTime,
+    pub mode: Mode,
     pub illuminator: bool,
     illuminator_timeout: u64,
+    pub hour_format: HourFormat,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct App {
     pub should_quit: bool,
-    pub tick_counter: u64,
+    tick_counter: u64,
     tick_rate_ms: u64,
     pub clock: Clock,
 }
@@ -25,10 +47,9 @@ pub struct App {
 impl App {
     pub fn new(tick_rate_ms: u64) -> Self {
         Self {
-            should_quit: false,
-            tick_counter: 0,
             tick_rate_ms,
             clock: persistence::restore().unwrap_or_default(),
+            ..Default::default()
         }
     }
 
@@ -66,8 +87,18 @@ impl App {
         self.clock.illuminator_timeout = 20;
     }
 
-    pub fn press_button_b(&mut self) {}
-    pub fn press_button_c(&mut self) {}
+    pub fn press_button_b(&mut self) {
+        self.clock.mode.next();
+    }
+
+    pub fn press_button_c(&mut self) {
+        match self.clock.mode {
+            Mode::Timekeeping => self.clock.hour_format.next(),
+            Mode::Alarm => {}
+            Mode::Stopwatch => {}
+            Mode::TimeSetting => {}
+        }
+    }
 }
 
 #[cfg(test)]

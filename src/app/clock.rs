@@ -2,7 +2,23 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub enum HourFormat {
+    Format12,
+    #[default]
+    Format24,
+}
+
+impl HourFormat {
+    pub fn next(&mut self) {
+        *self = match *self {
+            HourFormat::Format12 => HourFormat::Format24,
+            HourFormat::Format24 => HourFormat::Format12,
+        }
+    }
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub enum Weekday {
     #[default]
     Monday,
@@ -54,7 +70,7 @@ impl Weekday {
     }
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DateTime {
     /// 0-23 hour
     pub hour: u8,
