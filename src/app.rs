@@ -21,7 +21,8 @@ impl App {
     /// Handles the tick event of the terminal.
     pub fn tick(&mut self) {
         self.tick_counter += 1;
-        if self.tick_counter % (self.tick_rate_ms * 1000) == 0 {
+        if self.tick_counter % (1000 / self.tick_rate_ms) == 0 {
+            self.tick_counter = 0;
             self.datetime.increment_second(true);
         }
     }
