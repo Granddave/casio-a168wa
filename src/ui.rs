@@ -74,7 +74,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
         widget
             .block(
                 Block::default()
-                    .title("CASIO Alarm Chrono")
+                    .title("CASIO")
                     .title_alignment(Alignment::Center)
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded),
