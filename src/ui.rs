@@ -38,7 +38,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
 
     let widget = match app.clock.mode {
         Mode::Timekeeping => time(app),
-        _ => time(app),
+        _ => Paragraph::new(format!("{:?} not implemented", app.clock.mode))
     };
 
     f.render_widget(
