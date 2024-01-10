@@ -20,7 +20,7 @@ use tui::Tui;
 use update::update;
 
 fn main() -> Result<()> {
-    let tick_rate_ms = 1;
+    let tick_rate_ms = 10;
     let mut app = App::new(tick_rate_ms);
 
     let backend = CrosstermBackend::new(std::io::stderr());

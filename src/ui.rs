@@ -7,6 +7,12 @@ use ratatui::{
 use crate::app::App;
 
 pub fn render(app: &mut App, f: &mut Frame) {
+    let background = if app.clock.illuminator {
+        Color::Green
+    } else {
+        Color::Black
+    };
+
     f.render_widget(
         Paragraph::new(format!(
             "{} {}\n{:02}:{:02} {:02}",
@@ -23,7 +29,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded),
         )
-        .style(Style::default().fg(Color::Yellow))
+        .style(Style::default().fg(Color::Yellow).bg(background))
         .alignment(Alignment::Left),
         f.size(),
     )

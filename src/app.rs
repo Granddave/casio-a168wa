@@ -10,6 +10,8 @@ mod persistence;
 #[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Clock {
     pub datetime: DateTime,
+    pub illuminator: bool,
+    illuminator_timeout: u64,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -37,6 +39,13 @@ impl App {
             self.tick_counter = 0;
             self.clock.datetime.increment_second(true);
         }
+
+        if self.clock.illuminator_timeout > 0 {
+            self.clock.illuminator_timeout -= 1;
+            if self.clock.illuminator_timeout == 0 {
+                self.clock.illuminator = false;
+            }
+        }
     }
 
     pub fn quit(&mut self) {
@@ -51,6 +60,14 @@ impl App {
     pub fn decrement_counter(&mut self) {
         self.clock.datetime.decrement_second(true);
     }
+
+    pub fn press_button_a(&mut self) {
+        self.clock.illuminator = true;
+        self.clock.illuminator_timeout = 20;
+    }
+
+    pub fn press_button_b(&mut self) {}
+    pub fn press_button_c(&mut self) {}
 }
 
 #[cfg(test)]
