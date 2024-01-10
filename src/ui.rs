@@ -4,7 +4,7 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Paragraph},
 };
 
-use crate::app::{App, Mode, clock::HourFormat};
+pub use crate::app::{clock::datetime::HourFormat, clock::Mode, App};
 
 fn time(app: &App) -> Paragraph {
     let hour = app.clock.datetime.hour;
@@ -38,7 +38,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
 
     let widget = match app.clock.mode {
         Mode::Timekeeping => time(app),
-        _ => Paragraph::new(format!("{:?} not implemented", app.clock.mode))
+        _ => Paragraph::new(format!("{:?} not implemented", app.clock.mode)),
     };
 
     f.render_widget(

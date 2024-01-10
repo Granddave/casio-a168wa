@@ -2,7 +2,7 @@ use std::{fs::File, io::Write};
 
 use serde_json::to_string_pretty;
 
-use super::Clock;
+use super::clock::Clock;
 
 pub fn save(app: &Clock) -> std::io::Result<()> {
     let mut file = File::create("data.json")?;
