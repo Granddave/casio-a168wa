@@ -70,10 +70,10 @@ fn time_setting(app: &App) -> Paragraph {
 }
 
 pub fn render(app: &mut App, f: &mut Frame) {
-    let background = if app.clock.illuminator {
-        Color::Green
+    let (fg, bg) = if app.clock.illuminator {
+        (Color::Black, Color::Cyan)
     } else {
-        Color::Black
+        (Color::White, Color::Black)
     };
 
     let widget = match app.clock.mode {
@@ -92,7 +92,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded),
             )
-            .style(Style::default().fg(Color::White).bg(background))
+            .style(Style::default().fg(fg).bg(bg))
             .alignment(Alignment::Left),
         f.size(),
     );
