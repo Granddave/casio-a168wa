@@ -31,7 +31,10 @@ impl App {
             self.tick_counter = 0;
             self.clock.datetime.increment_second(true);
         }
-        self.clock.tick();
+
+        if self.tick_counter % (10 / self.tick_rate_ms) == 0 {
+            self.clock.tick_hundreds();
+        }
     }
 
     pub fn quit(&mut self) {
@@ -51,6 +54,13 @@ impl App {
         self.clock.illuminate();
         match self.clock.mode {
             Mode::TimeSetting => self.clock.time_setting.next_field(),
+            Mode::Stopwatch => match self.clock.stopwatch.started {
+                true => self.clock.stopwatch.split(),
+                false => match self.clock.stopwatch.split {
+                    Some(_) => self.clock.stopwatch.split(),
+                    None => self.clock.stopwatch.clear(),
+                },
+            },
             _ => {}
         }
     }
@@ -63,7 +73,10 @@ impl App {
         match self.clock.mode {
             Mode::Timekeeping => self.clock.hour_format.next(),
             Mode::Alarm => {}
-            Mode::Stopwatch => {}
+            Mode::Stopwatch => match self.clock.stopwatch.started {
+                true => self.clock.stopwatch.stop(),
+                false => self.clock.stopwatch.start(),
+            },
             Mode::TimeSetting => self.clock.time_setting.activate(&mut self.clock.datetime),
         }
     }
@@ -71,5 +84,117 @@ impl App {
 
 #[cfg(test)]
 mod tests {
-    // use super::*;
+    use crate::app::clock::stopwatch::Stopwatch;
+
+    use super::*;
+
+    fn sleep_ms(app: &mut App, ms: u64) {
+        for _ in 0..ms {
+            app.tick();
+        }
+    }
+
+    #[test]
+    fn test_stopwatch_start_stop() {
+        let mut app = App::new(1);
+
+        // Go to stop watch mode
+        app.press_button_b();
+        app.press_button_b();
+
+        for _ in 0..4 {
+            // Start the stop watch
+            app.press_button_c();
+            sleep_ms(&mut app, 1000);
+            // Stop the stop watch
+            app.press_button_c();
+            sleep_ms(&mut app, 1000);
+        }
+
+        assert_eq!(app.clock.stopwatch.measurement.hundreds, 0);
+        assert_eq!(app.clock.stopwatch.measurement.seconds, 4);
+        assert_eq!(app.clock.stopwatch.measurement.minutes, 0);
+        assert_eq!(app.clock.stopwatch.started, false);
+
+        // Clear the stop watch
+        app.press_button_a();
+        assert_eq!(app.clock.stopwatch, Stopwatch::default());
+    }
+
+    #[test]
+    fn test_stopwatch_split_measurement() {
+        let mut app = App::new(1);
+
+        // Go to stop watch mode
+        app.press_button_b();
+        app.press_button_b();
+
+        // Start the stop watch
+        app.press_button_c();
+        assert_eq!(app.clock.stopwatch.started, true);
+        sleep_ms(&mut app, 1000);
+
+        // Split
+        assert!(app.clock.stopwatch.split.is_none());
+        app.press_button_a();
+        sleep_ms(&mut app, 1000);
+        assert!(app.clock.stopwatch.split.is_some());
+
+        // Split release
+        app.press_button_a();
+        sleep_ms(&mut app, 1000);
+        assert!(app.clock.stopwatch.split.is_none());
+
+        // stop the stop watch
+        app.press_button_c();
+        assert_eq!(app.clock.stopwatch.started, false);
+        sleep_ms(&mut app, 1000);
+
+        assert_eq!(app.clock.stopwatch.measurement.hundreds, 0);
+        assert_eq!(app.clock.stopwatch.measurement.seconds, 3);
+        assert_eq!(app.clock.stopwatch.measurement.minutes, 0);
+        assert_eq!(app.clock.stopwatch.started, false);
+
+        // Clear the stop watch
+        app.press_button_a();
+        assert_eq!(app.clock.stopwatch, Stopwatch::default());
+    }
+
+    #[test]
+    fn test_stopwatch_split_time_place_times() {
+        let mut app = App::new(1);
+
+        // Go to stop watch mode
+        app.press_button_b();
+        app.press_button_b();
+
+        // Start the stop watch
+        app.press_button_c();
+        assert_eq!(app.clock.stopwatch.started, true);
+        sleep_ms(&mut app, 1000);
+
+        // Split. First runner finishes.
+        assert!(app.clock.stopwatch.split.is_none());
+        app.press_button_a();
+        assert!(app.clock.stopwatch.split.is_some());
+        sleep_ms(&mut app, 1000);
+
+        // Start the stop watch
+        app.press_button_c();
+        sleep_ms(&mut app, 1000);
+
+        // Split. Second runner finishes. Record time first runner.
+        assert!(app.clock.stopwatch.split.is_some());
+        app.press_button_a();
+        assert!(app.clock.stopwatch.split.is_none());
+
+        assert_eq!(app.clock.stopwatch.measurement.hundreds, 0);
+        assert_eq!(app.clock.stopwatch.measurement.seconds, 2);
+        assert_eq!(app.clock.stopwatch.measurement.minutes, 0);
+        assert_eq!(app.clock.stopwatch.started, false);
+
+        // Clear the stop watch
+        app.press_button_a();
+        assert_eq!(app.clock.stopwatch, Stopwatch::default());
+    }
 }

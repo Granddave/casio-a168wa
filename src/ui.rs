@@ -36,6 +36,18 @@ fn time(app: &App) -> Paragraph {
     ))
 }
 
+fn stopwatch(app: &App) -> Paragraph {
+    let stopwatch = &app.clock.stopwatch;
+    let (split_str, measurement) = match &stopwatch.split {
+        Some(split) => ("SPLIT", split),
+        None => ("", &stopwatch.measurement),
+    };
+    Paragraph::new(format!(
+        "ST {}\n{:02}:{:02} {:02}",
+        split_str, measurement.minutes, measurement.seconds, measurement.hundreds,
+    ))
+}
+
 fn time_setting(app: &App) -> Paragraph {
     match app.clock.time_setting.selected_field {
         DateTimeField::Second | DateTimeField::Hour | DateTimeField::Minute => {
@@ -66,6 +78,7 @@ pub fn render(app: &mut App, f: &mut Frame) {
 
     let widget = match app.clock.mode {
         Mode::Timekeeping => time(app),
+        Mode::Stopwatch => stopwatch(app),
         Mode::TimeSetting => time_setting(app),
         _ => Paragraph::new(format!("{:?} not implemented", app.clock.mode)),
     };

@@ -2,10 +2,12 @@ use serde::{Deserialize, Serialize};
 
 use self::{
     datetime::{DateTime, HourFormat},
+    stopwatch::Stopwatch,
     time_setting::TimeSetter,
 };
 
 pub mod datetime;
+pub mod stopwatch;
 pub mod time_setting;
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -40,16 +42,21 @@ pub struct Clock {
     #[serde(skip)]
     illuminator_timeout: u64,
     pub hour_format: HourFormat,
+
+    #[serde(skip)]
+    pub stopwatch: Stopwatch,
 }
 
 impl Clock {
-    pub fn tick(&mut self) {
+    pub fn tick_hundreds(&mut self) {
         if self.illuminator_timeout > 0 {
             self.illuminator_timeout -= 1;
             if self.illuminator_timeout == 0 {
                 self.illuminator = false;
             }
         }
+
+        self.stopwatch.tick_hundreds();
     }
 
     pub fn illuminate(&mut self) {
